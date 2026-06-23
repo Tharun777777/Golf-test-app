@@ -1,0 +1,108 @@
+<%
+  const title = "Dashboard";
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %> — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title }) %>
+    <div class="content">
+
+      <!-- Welcome banner -->
+      <div class="welcome-banner">
+        <div>
+          <h1>Good day, <span class="highlight"><%= user %></span> ⛳</h1>
+          <p>Welcome to the Benevolate Golf Club member portal.</p>
+        </div>
+        <div class="weather-box">
+          <div class="weather-icon">☀️</div>
+          <div>
+            <div class="weather-temp">24°C</div>
+            <div class="weather-desc">Perfect for golf</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Active Members</div>
+          <div class="stat-value purple">148</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Courses Available</div>
+          <div class="stat-value green">4</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rounds Today</div>
+          <div class="stat-value amber">23</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Club Handicap Avg</div>
+          <div class="stat-value">14.2</div>
+        </div>
+      </div>
+
+      <!-- Upcoming tee times -->
+      <div class="section-label">Upcoming Tee Times</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Time</th><th>Course</th><th>Player</th><th>Holes</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>07:00 AM</td><td>Pine Valley</td><td>James Whitfield</td><td>18</td><td><span class="badge badge-ok">Confirmed</span></td></tr>
+            <tr><td>08:30 AM</td><td>The Highlands</td><td>Sarah Connor</td><td>9</td><td><span class="badge badge-ok">Confirmed</span></td></tr>
+            <tr><td>10:00 AM</td><td>Royal Links</td><td>Mark Thompson</td><td>18</td><td><span class="badge badge-pending">Pending</span></td></tr>
+            <tr><td>01:15 PM</td><td>Sunset Fairways</td><td>Lisa Park</td><td>9</td><td><span class="badge badge-ok">Confirmed</span></td></tr>
+            <tr><td>03:30 PM</td><td>Pine Valley</td><td>David Chen</td><td>18</td><td><span class="badge badge-pending">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="section-label">Recent Club Activity</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-body">
+            <span class="activity-name">James Whitfield</span> completed a round at <strong>Pine Valley</strong> with score <strong>72</strong>
+          </div>
+          <span class="activity-time">2h ago</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot purple"></div>
+          <div class="activity-body">
+            New member <span class="activity-name">Emily Rogers</span> joined the club
+          </div>
+          <span class="activity-time">5h ago</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot amber"></div>
+          <div class="activity-body">
+            <span class="activity-name">Club Tournament</span> results posted for <strong>Monthly Medal</strong>
+          </div>
+          <span class="activity-time">1d ago</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-body">
+            <span class="activity-name">Royal Links</span> course reopened after maintenance
+          </div>
+          <span class="activity-time">2d ago</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

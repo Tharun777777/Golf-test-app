@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">⛳</div>
+      <div class="login-brand">
+        <span class="brand-name">Benevolate</span>
+        <span class="brand-sub">GOLF CLUB</span>
+      </div>
+    </div>
+
+    <h1 class="login-title">Welcome back</h1>
+    <p class="login-sub">Sign in to access the golf club portal</p>
+
+    <% if (error) { %>
+    <div class="alert-error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/login">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="admin" required autofocus/>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="••••••••" required/>
+      </div>
+      <button type="submit" class="btn-login">Sign in</button>
+    </form>
+
+    <p class="login-hint">Demo credentials: <code>admin</code> / <code>golf123</code></p>
+  </div>
+</body>
+</html>

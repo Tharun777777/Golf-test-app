@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Courses — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Courses' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Golf Courses</h1>
+        <p>Our 4 championship courses available to club members</p>
+      </div>
+
+      <div class="courses-grid">
+
+        <div class="course-card">
+          <div class="course-banner" style="background: linear-gradient(135deg,#2d5a27,#4a8c3f);">
+            <div class="course-icon">🌲</div>
+            <span class="course-badge">18 holes</span>
+          </div>
+          <div class="course-body">
+            <h3>Pine Valley</h3>
+            <p class="course-desc">Our flagship course nestled among tall pine trees. A true test of accuracy and course management.</p>
+            <div class="course-stats">
+              <div class="course-stat"><span class="cs-label">Par</span><span class="cs-val">72</span></div>
+              <div class="course-stat"><span class="cs-label">Length</span><span class="cs-val">6,850 yds</span></div>
+              <div class="course-stat"><span class="cs-label">Rating</span><span class="cs-val">74.2</span></div>
+            </div>
+            <span class="badge badge-ok">Open</span>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-banner" style="background: linear-gradient(135deg,#3a2d6b,#5b4fcf);">
+            <div class="course-icon">🏔️</div>
+            <span class="course-badge">18 holes</span>
+          </div>
+          <div class="course-body">
+            <h3>The Highlands</h3>
+            <p class="course-desc">Dramatic elevation changes and panoramic views make this a breathtaking and challenging round.</p>
+            <div class="course-stats">
+              <div class="course-stat"><span class="cs-label">Par</span><span class="cs-val">71</span></div>
+              <div class="course-stat"><span class="cs-label">Length</span><span class="cs-val">7,020 yds</span></div>
+              <div class="course-stat"><span class="cs-label">Rating</span><span class="cs-val">75.8</span></div>
+            </div>
+            <span class="badge badge-ok">Open</span>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-banner" style="background: linear-gradient(135deg,#0d4f6b,#1a8ab0);">
+            <div class="course-icon">🌊</div>
+            <span class="course-badge">9 holes</span>
+          </div>
+          <div class="course-body">
+            <h3>Royal Links</h3>
+            <p class="course-desc">Coastal-style links course with challenging sea breezes and firm, fast fairways.</p>
+            <div class="course-stats">
+              <div class="course-stat"><span class="cs-label">Par</span><span class="cs-val">36</span></div>
+              <div class="course-stat"><span class="cs-label">Length</span><span class="cs-val">3,400 yds</span></div>
+              <div class="course-stat"><span class="cs-label">Rating</span><span class="cs-val">36.5</span></div>
+            </div>
+            <span class="badge badge-ok">Open</span>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-banner" style="background: linear-gradient(135deg,#6b4a0d,#c49a2a);">
+            <div class="course-icon">🌅</div>
+            <span class="course-badge">9 holes</span>
+          </div>
+          <div class="course-body">
+            <h3>Sunset Fairways</h3>
+            <p class="course-desc">Perfect for an evening round. Gentle terrain ideal for beginners and casual play.</p>
+            <div class="course-stats">
+              <div class="course-stat"><span class="cs-label">Par</span><span class="cs-val">35</span></div>
+              <div class="course-stat"><span class="cs-label">Length</span><span class="cs-val">2,950 yds</span></div>
+              <div class="course-stat"><span class="cs-label">Rating</span><span class="cs-val">34.0</span></div>
+            </div>
+            <span class="badge badge-pending">Maintenance</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

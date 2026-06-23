@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scores — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Scores' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Leaderboard & Scores</h1>
+        <p>Club member scores and monthly standings</p>
+      </div>
+
+      <!-- Top 3 podium -->
+      <div class="podium-row">
+        <div class="podium-card silver">
+          <div class="podium-rank">2</div>
+          <div class="podium-avatar">SC</div>
+          <div class="podium-name">Sarah Connor</div>
+          <div class="podium-score">68</div>
+          <div class="podium-label">Best round</div>
+        </div>
+        <div class="podium-card gold">
+          <div class="podium-rank">🏆 1</div>
+          <div class="podium-avatar">JW</div>
+          <div class="podium-name">James Whitfield</div>
+          <div class="podium-score">65</div>
+          <div class="podium-label">Best round</div>
+        </div>
+        <div class="podium-card bronze">
+          <div class="podium-rank">3</div>
+          <div class="podium-avatar">MT</div>
+          <div class="podium-name">Mark Thompson</div>
+          <div class="podium-score">70</div>
+          <div class="podium-label">Best round</div>
+        </div>
+      </div>
+
+      <!-- Full leaderboard -->
+      <div class="section-label">Monthly Leaderboard — June 2025</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player</th>
+              <th>Handicap</th>
+              <th>Rounds</th>
+              <th>Best Score</th>
+              <th>Average</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td><strong>James Whitfield</strong></td>
+              <td>4</td>
+              <td>8</td>
+              <td><span class="score-chip green">65</span></td>
+              <td>70.1</td>
+              <td class="trend-up">↑ +2</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>Sarah Connor</td>
+              <td>7</td>
+              <td>6</td>
+              <td><span class="score-chip green">68</span></td>
+              <td>72.4</td>
+              <td class="trend-up">↑ +1</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>Mark Thompson</td>
+              <td>10</td>
+              <td>10</td>
+              <td><span class="score-chip amber">70</span></td>
+              <td>74.8</td>
+              <td class="trend-down">↓ -1</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>David Chen</td>
+              <td>12</td>
+              <td>5</td>
+              <td><span class="score-chip amber">73</span></td>
+              <td>76.2</td>
+              <td class="trend-neutral">→</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Lisa Park</td>
+              <td>14</td>
+              <td>7</td>
+              <td><span class="score-chip amber">75</span></td>
+              <td>78.5</td>
+              <td class="trend-up">↑ +3</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Robert King</td>
+              <td>18</td>
+              <td>4</td>
+              <td><span class="score-chip">79</span></td>
+              <td>82.1</td>
+              <td class="trend-neutral">→</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Emily Rogers</td>
+              <td>22</td>
+              <td>3</td>
+              <td><span class="score-chip">83</span></td>
+              <td>85.7</td>
+              <td class="trend-down">↓ -2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Score summary -->
+      <div class="section-label">Club Records</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Course Record</div>
+          <div class="stat-value green">63</div>
+          <div class="stat-sub">Pine Valley — 2024</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Most Rounds (Month)</div>
+          <div class="stat-value purple">10</div>
+          <div class="stat-sub">Mark Thompson</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lowest Avg Score</div>
+          <div class="stat-value amber">70.1</div>
+          <div class="stat-sub">James Whitfield</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Rounds Played</div>
+          <div class="stat-value">43</div>
+          <div class="stat-sub">This month</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
