@@ -22,10 +22,68 @@ phases:
       - echo "Pushing image to ECR..."
       - docker push $ECR_REPO_URI:$IMAGE_TAG
       - docker push $ECR_REPO_URI:latest
-      - echo "Writing imageDetail.json for ECS deploy..."
-      - printf '[{"name":"golf-demo-app","imageUri":"%s"}]' "$ECR_REPO_URI:$IMAGE_TAG" > imagedefinitions.json
+      - echo "Writing imagedefinitions.json for rolling ECS deploys..."
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$ECR_REPO_URI:$IMAGE_TAG" > imagedefinitions.json
       - cat imagedefinitions.json
+      - echo "Writing imageDetail.json for CodeDeploy blue-green..."
+      - printf '{"ImageURI":"%s"}' "$ECR_REPO_URI:$IMAGE_TAG" > imageDetail.json
+      - cat imageDetail.json
+      - echo "Writing taskdef.json template..."
+      - |
+        cat <<EOF > taskdef.json
+        {
+          "containerDefinitions": [
+            {
+              "name": "$CONTAINER_NAME",
+              "image": "<IMAGE1_NAME>",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "hostPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "$LOG_GROUP_NAME",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "prod"
+                }
+              }
+            }
+          ],
+          "family": "${ECS_CLUSTER_NAME}-prod",
+          "executionRoleArn": "$EXECUTION_ROLE_ARN",
+          "taskRoleArn": "$TASK_ROLE_ARN",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": [
+            "FARGATE"
+          ],
+          "cpu": "256",
+          "memory": "512"
+        }
+        EOF
+      - cat taskdef.json
+      - echo "Writing appspec.yaml template..."
+      - |
+        cat <<EOF > appspec.yaml
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: <TASK_DEFINITION>
+                LoadBalancerInfo:
+                  ContainerName: "$CONTAINER_NAME"
+                  ContainerPort: $CONTAINER_PORT
+        EOF
+      - cat appspec.yaml
 
 artifacts:
   files:
     - imagedefinitions.json
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yaml
