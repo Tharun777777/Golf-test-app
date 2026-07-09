@@ -25,15 +25,29 @@ phases:
       - docker push $ECR_REPO_URI:latest
 
       # ── For Deploy-Dev / Deploy-UAT (simple "ECS" deploy action) ──────
-      # CodePipeline's ECS deploy action reads this to swap the image on
-      # whatever task definition is currently active for that service.
+      # CodePipeline's plain ECS deploy action reads this to swap the image
+      # on whatever task definition is currently active for that service.
       - echo "Writing imagedefinitions.json..."
       - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$ECR_REPO_URI:$IMAGE_TAG" > imagedefinitions.json
       - cat imagedefinitions.json
 
       # ── For Deploy-Prod (CodeDeployToECS blue/green action) ───────────
+      # This action does NOT read imagedefinitions.json — it reads a
+      # differently-named/shaped file, imageDetail.json (singular "Detail",
+      # just one field: ImageURI). CodePipeline uses this to fill in the
+      # <IMAGE1_NAME> placeholder inside taskdef.json below. Using the
+      # versioned $IMAGE_TAG (not :latest) here so each deployment is
+      # traceable to the exact commit it came from.
+      - echo "Writing imageDetail.json..."
+      - printf '{"ImageURI":"%s"}' "$ECR_REPO_URI:$IMAGE_TAG" > imageDetail.json
+      - cat imageDetail.json
+
       # taskdef.json is generated here (not committed statically) so it always
-      # reflects the current ECR image URI, roles, cluster, region, and logs.
+      # reflects the current roles, cluster, region, and logs. The "image"
+      # field MUST be the literal placeholder <IMAGE1_NAME> — not a real URI —
+      # because CodeDeployToECS finds-and-replaces that exact placeholder
+      # using Image1ContainerName="IMAGE1_NAME" configured on the pipeline
+      # action, substituting in the ImageURI from imageDetail.json above.
       - echo "Writing taskdef.json..."
       - |
         cat > taskdef.json << EOF
@@ -48,7 +62,7 @@ phases:
           "containerDefinitions": [
             {
               "name": "${CONTAINER_NAME}",
-              "image": "${ECR_REPO_URI}:${IMAGE_TAG}",
+              "image": "<IMAGE1_NAME>",
               "essential": true,
               "portMappings": [
                 { "containerPort": ${CONTAINER_PORT}, "protocol": "tcp" }
@@ -66,7 +80,7 @@ phases:
         }
         EOF
       - cat taskdef.json
- 
+
       # appspec.yaml tells CodeDeploy which container/port to route traffic to
       # on the new task set. <TASK_DEFINITION> is CodeDeploy's own placeholder
       # (not CodePipeline's) — CodeDeploy fills it in automatically once it
@@ -89,5 +103,6 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
+    - imageDetail.json
     - taskdef.json
     - appspec.yaml
