@@ -1,74 +1,87 @@
 version: 0.2
 
 env:
-  variables:
-    PORT: "3000"
+  shell: bash
 
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
-      - IMAGE_TAG=build-$CODEBUILD_BUILD_NUMBER
-      - echo "Build number $CODEBUILD_BUILD_NUMBER - image tag $IMAGE_TAG"
+      - echo "Logging in to ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
+      - if [ -z "$IMAGE_TAG" ] || [ "$IMAGE_TAG" = "" ]; then IMAGE_TAG=latest; fi
+      - echo "Image tag will be $IMAGE_TAG"
 
   build:
     commands:
       - echo "Building Docker image..."
-      - docker build -t $ECR_REPO_URI:$IMAGE_TAG -t $ECR_REPO_URI:latest .
+      - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+      - docker tag $ECR_REPO_URI:$IMAGE_TAG $ECR_REPO_URI:latest
 
   post_build:
     commands:
       - echo "Pushing image to ECR..."
       - docker push $ECR_REPO_URI:$IMAGE_TAG
       - docker push $ECR_REPO_URI:latest
-      - echo "Writing imagedefinitions.json for rolling ECS deploys..."
+
+      # ── For Deploy-Dev / Deploy-UAT (simple "ECS" deploy action) ──────
+      # CodePipeline's ECS deploy action reads this to swap the image on
+      # whatever task definition is currently active for that service.
+      - echo "Writing imagedefinitions.json..."
       - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$ECR_REPO_URI:$IMAGE_TAG" > imagedefinitions.json
       - cat imagedefinitions.json
-      - echo "Writing imageDetail.json for CodeDeploy blue-green..."
+
+      # ── For Deploy-Prod (CodeDeployToECS blue/green action) ───────────
+      # imageDetail.json tells CodePipeline the built image URI. It substitutes
+      # this into taskdef.json wherever it finds the literal string "IMAGE1_NAME"
+      # (matches Image1ContainerName in the Terraform pipeline config).
+      - echo "Writing imageDetail.json..."
       - printf '{"ImageURI":"%s"}' "$ECR_REPO_URI:$IMAGE_TAG" > imageDetail.json
       - cat imageDetail.json
-      - echo "Writing taskdef.json template..."
+
+      # taskdef.json is generated here (not committed statically) so it always
+      # reflects the current EXECUTION_ROLE_ARN / TASK_ROLE_ARN / cluster /
+      # region / log group without needing manual updates in this repo.
+      - echo "Writing taskdef.json..."
       - |
-        cat <<EOF > taskdef.json
+        cat > taskdef.json << EOF
         {
+          "family": "${ECS_CLUSTER_NAME}-prod",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "${EXECUTION_ROLE_ARN}",
+          "taskRoleArn": "${TASK_ROLE_ARN}",
           "containerDefinitions": [
             {
-              "name": "$CONTAINER_NAME",
-              "image": "<IMAGE1_NAME>",
+              "name": "${CONTAINER_NAME}",
+              "image": "IMAGE1_NAME",
               "essential": true,
               "portMappings": [
-                {
-                  "containerPort": $CONTAINER_PORT,
-                  "hostPort": $CONTAINER_PORT,
-                  "protocol": "tcp"
-                }
+                { "containerPort": ${CONTAINER_PORT}, "protocol": "tcp" }
               ],
               "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                  "awslogs-group": "$LOG_GROUP_NAME",
-                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-group": "${LOG_GROUP_NAME}",
+                  "awslogs-region": "${AWS_REGION}",
                   "awslogs-stream-prefix": "prod"
                 }
               }
             }
-          ],
-          "family": "${ECS_CLUSTER_NAME}-prod",
-          "executionRoleArn": "$EXECUTION_ROLE_ARN",
-          "taskRoleArn": "$TASK_ROLE_ARN",
-          "networkMode": "awsvpc",
-          "requiresCompatibilities": [
-            "FARGATE"
-          ],
-          "cpu": "256",
-          "memory": "512"
+          ]
         }
         EOF
       - cat taskdef.json
-      - echo "Writing appspec.yaml template..."
+
+      # appspec.yaml tells CodeDeploy which container/port to route traffic to
+      # on the new task set. <TASK_DEFINITION> is CodeDeploy's own placeholder
+      # (not CodePipeline's) — CodeDeploy fills it in automatically once it
+      # registers the task definition rendered from taskdef.json above.
+      - echo "Writing appspec.yaml..."
       - |
-        cat <<EOF > appspec.yaml
+        cat > appspec.yaml << EOF
         version: 0.0
         Resources:
           - TargetService:
@@ -76,8 +89,8 @@ phases:
               Properties:
                 TaskDefinition: <TASK_DEFINITION>
                 LoadBalancerInfo:
-                  ContainerName: "$CONTAINER_NAME"
-                  ContainerPort: $CONTAINER_PORT
+                  ContainerName: "${CONTAINER_NAME}"
+                  ContainerPort: ${CONTAINER_PORT}
         EOF
       - cat appspec.yaml
 
