@@ -25,8 +25,8 @@
 
     <form method="POST" action="/login">
       <div class="field">
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" placeholder="admin" required autofocus/>
+        <label for="username">Email</label>
+        <input id="username" name="username" type="text" placeholder="alice@google.com" required autofocus/>
       </div>
       <div class="field">
         <label for="password">Password</label>
@@ -35,7 +35,9 @@
       <button type="submit" class="btn-login">Sign in</button>
     </form>
 
-    <p class="login-hint">Demo credentials: <code>admin</code> / <code>golf123</code></p>
+    <p class="login-hint">Demo accounts: <code>alice@google.com</code> / <code>golf123</code> (org 1)</p>
+    <p class="login-hint">and <code>bob@benevolate.com</code> / <code>benevolate</code> (org 2)</p>
+    <p class="login-hint">Org ID comes from the email domain — whichever org is on the Beta list gets routed to Beta (green), everyone else stays on Prod (blue).</p>
   </div>
 </body>
 </html>

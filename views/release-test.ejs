@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Release Test — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Release Test' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Release / Environment Test</h1>
+        <p>Confirms which ECS environment actually served this request, based on ALB cookie routing.</p>
+      </div>
+
+      <div class="welcome-banner" style="background: <%= isBeta ? 'linear-gradient(135deg,#2d5a27,#4a8c3f)' : 'linear-gradient(135deg,#1c3f6e,#3568ab)' %>; color:#fff;">
+        <div>
+          <h1 style="color:#fff;">
+            You are on <%= isBeta ? 'BETA (Green)' : 'PRODUCTION (Blue)' %>
+          </h1>
+          <p style="color:#eee;">
+            <%= isBeta
+              ? 'This request was routed to the beta ECS service by the ALB __env=beta cookie rule.'
+              : 'No matching beta cookie was sent, so the ALB routed this to the standard prod service.' %>
+          </p>
+        </div>
+        <div class="weather-box" style="background:rgba(255,255,255,0.15);">
+          <div class="weather-icon"><%= isBeta ? '🟢' : '🔵' %></div>
+          <div>
+            <div class="weather-temp" style="color:#fff;">v<%= buildVersion %></div>
+            <div class="weather-desc" style="color:#eee;">build version</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Request Details</div>
+      <div class="table-wrap">
+        <table>
+          <tbody>
+            <tr><td style="width:220px;">Logged in as</td><td><strong><%= user %></strong></td></tr>
+            <tr><td>Organization ID</td><td><strong><%= orgId || '(none entered)' %></strong></td></tr>
+            <tr>
+              <td><%= '__env' %> cookie value</td>
+              <td>
+                <% if (envCookie) { %>
+                  <span class="badge <%= isBeta ? 'badge-ok' : 'badge-pending' %>"><%= envCookie %></span>
+                <% } else { %>
+                  <span class="badge badge-fail">not set</span>
+                <% } %>
+              </td>
+            </tr>
+            <tr><td>Served by host</td><td><strong><%= hostname %></strong></td></tr>
+            <tr><td>Build version</td><td><strong><%= buildVersion %></strong></td></tr>
+            <tr>
+              <td>Beta org check source</td>
+              <td>
+                <% if (betaSource === 'admin-api') { %>
+                  <span class="badge badge-ok">live: CI/CD admin panel</span>
+                <% } else if (betaSource === 'static-list') { %>
+                  <span class="badge badge-pending">fallback: static BETA_ORG_IDS list</span>
+                <% } else { %>
+                  <span class="badge badge-fail"><%= betaSource %></span>
+                <% } %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-label">How to test</div>
+      <div class="activity-list">
+        <% if (adminApiUrl) { %>
+        <div class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-body">
+            Live mode is on (<code><%= adminApiUrl %></code>). Add or remove an Org ID in the CI/CD admin panel's
+            <strong>Beta Environment → Authorized Beta Organizations</strong> table — it takes effect the next time
+            that org logs in, with <strong>no redeploy</strong> of this app needed.
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot purple"></div>
+          <div class="activity-body">
+            If the admin panel can't be reached at login time, this app automatically falls back to the static
+            <code>BETA_ORG_IDS</code> list below, so routing never breaks.
+          </div>
+        </div>
+        <% } else { %>
+        <div class="activity-item">
+          <div class="activity-dot amber"></div>
+          <div class="activity-body">
+            <code>ADMIN_API_URL</code> is not set, so this app is using the static fallback list only. Set
+            <code>ADMIN_API_URL</code> to the CI/CD admin panel's reachable URL to switch to live, redeploy-free
+            org management.
+          </div>
+        </div>
+        <% } %>
+        <div class="activity-item">
+          <div class="activity-dot green"></div>
+          <div class="activity-body">
+            Log out, then log back in with an <strong>authorized</strong> Org ID (static fallback list currently:
+            <strong><%= authorizedOrgs.join(', ') %></strong>) to get routed to Beta (green).
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot purple"></div>
+          <div class="activity-body">
+            Log out, then log back in with <strong>any other</strong> Org ID (or leave it blank) to stay on Prod (blue).
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
