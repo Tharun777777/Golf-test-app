@@ -126,6 +126,42 @@ function parseCookies(req) {
   return out;
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * After flipping __env between prod and beta, the browser must POST login again
+ * so ALB routes the auth request to the correct ECS service. Otherwise the
+ * session is created on one side and the redirect hits the other → double login.
+ */
+function renderEnvHandoff(res, { username, password, message }) {
+  res.set("Content-Type", "text/html; charset=utf-8");
+  res.status(200).send(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><title>Switching environment…</title>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f5f3ff;color:#334155}
+.card{background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center;max-width:360px}
+.spin{width:28px;height:28px;border:3px solid #ddd6fe;border-top-color:#7c3aed;border-radius:50%;margin:0 auto 16px;animation:s .7s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}</style></head>
+<body><div class="card">
+  <div class="spin"></div>
+  <p>${escapeHtml(message || "Switching to the right environment…")}</p>
+  <p style="font-size:12px;color:#94a3b8">One moment — you only need to sign in once.</p>
+</div>
+<form id="handoff" method="POST" action="/login">
+  <input type="hidden" name="username" value="${escapeHtml(username)}"/>
+  <input type="hidden" name="password" value="${escapeHtml(password)}"/>
+  <input type="hidden" name="_env_handoff" value="1"/>
+</form>
+<script>document.getElementById("handoff").submit();</script>
+</body></html>`);
+}
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -154,26 +190,50 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const account = USERS[username];
   if (account && account.password === password) {
-    req.session.user = username;
-    req.session.orgId = await orgIdForEmail(username);
-
-    // This is the piece that feeds the ALB's cookie-based routing rule:
-    // authorized org -> __env=beta (green), everyone else -> no cookie (blue/prod).
+    const orgId = await orgIdForEmail(username);
+    let isBeta = false;
+    let betaSource = "unknown";
     try {
-      const { isBeta, source } = await isBetaOrg(req.session.orgId);
-      req.session.betaSource = source;
-      if (isBeta) {
-        res.cookie(ENV_COOKIE_NAME, "beta", { path: "/" });
-      } else {
-        res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
-      }
+      const result = await isBetaOrg(orgId);
+      isBeta = !!result.isBeta;
+      betaSource = result.source;
     } catch (err) {
-      // Should not happen (isBetaOrg already catches internally), but never
-      // block login over a routing-cookie decision.
       console.error("[beta-check] unexpected error, defaulting to prod:", err);
-      res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
+      isBeta = false;
     }
 
+    const onBeta = parseCookies(req)[ENV_COOKIE_NAME] === "beta";
+
+    // Cookie says prod but org needs beta → set cookie and re-POST so ALB
+    // sends this login to the beta ECS service (single user-facing login).
+    if (isBeta && !onBeta) {
+      res.cookie(ENV_COOKIE_NAME, "beta", { path: "/" });
+      return renderEnvHandoff(res, {
+        username,
+        password,
+        message: "Routing you to the beta environment…"
+      });
+    }
+
+    // Cookie says beta but org is not on the list → clear and re-POST to prod.
+    if (!isBeta && onBeta) {
+      res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
+      return renderEnvHandoff(res, {
+        username,
+        password,
+        message: "Routing you to production…"
+      });
+    }
+
+    // Already on the correct side of the ALB — create the session here.
+    req.session.user = username;
+    req.session.orgId = orgId;
+    req.session.betaSource = betaSource;
+    if (isBeta) {
+      res.cookie(ENV_COOKIE_NAME, "beta", { path: "/" });
+    } else {
+      res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
+    }
     return res.redirect("/");
   }
   res.render("login", { error: "Invalid username or password" });
