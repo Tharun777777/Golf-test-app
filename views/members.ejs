@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Members — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Members' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Club Members</h1>
+        <p>Current membership roster and handicap standings</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Members</div>
+          <div class="stat-value purple">148</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active This Month</div>
+          <div class="stat-value green">112</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Handicap</div>
+          <div class="stat-value amber">14.2</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">New This Year</div>
+          <div class="stat-value">9</div>
+        </div>
+      </div>
+
+      <div class="section-label">Membership Roster</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Membership</th>
+              <th>Handicap</th>
+              <th>Home Course</th>
+              <th>Joined</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ravi Kumar</td>
+              <td>Full Member</td>
+              <td>8.4</td>
+              <td>Pine Valley</td>
+              <td>Mar 2019</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Priya Sharma</td>
+              <td>Full Member</td>
+              <td>12.1</td>
+              <td>The Highlands</td>
+              <td>Jul 2020</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Arjun Mehta</td>
+              <td>Junior Member</td>
+              <td>18.7</td>
+              <td>Royal Links</td>
+              <td>Jan 2023</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Sneha Rao</td>
+              <td>Full Member</td>
+              <td>6.9</td>
+              <td>Pine Valley</td>
+              <td>Sep 2017</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Vikram Singh</td>
+              <td>Corporate Member</td>
+              <td>22.3</td>
+              <td>Sunset Fairways</td>
+              <td>Nov 2021</td>
+              <td><span class="badge badge-pending">On Hold</span></td>
+            </tr>
+            <tr>
+              <td>Anita Desai</td>
+              <td>Full Member</td>
+              <td>15.5</td>
+              <td>The Highlands</td>
+              <td>May 2018</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Karan Nair</td>
+              <td>Junior Member</td>
+              <td>24.0</td>
+              <td>Sunset Fairways</td>
+              <td>Feb 2024</td>
+              <td><span class="badge badge-ok">Active</span></td>
+            </tr>
+            <tr>
+              <td>Meera Iyer</td>
+              <td>Corporate Member</td>
+              <td>10.2</td>
+              <td>Royal Links</td>
+              <td>Aug 2022</td>
+              <td><span class="badge badge-fail">Expired</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
