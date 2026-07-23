@@ -196,6 +196,10 @@ app.get("/scores", requireLogin, (req, res) => {
   res.render("scores", { user: req.session.user, page: "scores" });
 });
 
+app.get("/members", requireLogin, (req, res) => {
+  res.render("members", { user: req.session.user, page: "members" });
+});
+
 app.get("/release-test", requireLogin, (req, res) => {
   const cookies = parseCookies(req);
   const envCookie = cookies[ENV_COOKIE_NAME] || null;
