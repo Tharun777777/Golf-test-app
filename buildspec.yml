@@ -68,7 +68,12 @@ phases:
                 { "containerPort": ${CONTAINER_PORT}, "protocol": "tcp" }
               ],
               "environment": [
-                { "name": "ADMIN_API_URL", "value": "${ADMIN_API_URL}" }
+                { "name": "ADMIN_API_URL", "value": "${ADMIN_API_URL}" },
+                { "name": "AWS_REGION", "value": "${AWS_REGION}" },
+                { "name": "ECS_CLUSTER", "value": "${ECS_CLUSTER_NAME}" },
+                { "name": "ECS_BETA_SERVICE", "value": "${ECS_BETA_SERVICE}" },
+                { "name": "ECS_PROD_SERVICE", "value": "${ECS_PROD_SERVICE}" },
+                { "name": "ALB_LISTENER_RULE_ARN", "value": "${ALB_LISTENER_RULE_ARN}" }
               ],
               "logConfiguration": {
                 "logDriver": "awslogs",
