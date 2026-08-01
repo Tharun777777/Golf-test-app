@@ -1,3 +1,10 @@
+// Local dev convenience only — .env is excluded from the Docker build
+// (.dockerignore) on purpose. Deployed environments (dev/uat/prod ECS) get
+// ADMIN_API_URL from the task definition's environment block instead, see
+// buildspec.yml.
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const express = require("express");
 const session = require("express-session");
 const path    = require("path");
