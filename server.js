@@ -211,6 +211,10 @@ app.get("/tournaments", requireLogin, (req, res) => {
   res.render("tournaments", { user: req.session.user, page: "tournaments" });
 });
 
+app.get("/club-matches", requireLogin, (req, res) => {
+  res.render("club-matches", { user: req.session.user, page: "club-matches" });
+});
+
 app.get("/release-test", requireLogin, (req, res) => {
   const cookies = parseCookies(req);
   const envCookie = cookies[ENV_COOKIE_NAME] || null;

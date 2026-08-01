@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Club Matches — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Club Matches' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Club Matches</h1>
+        <p>Inter-club and member match fixtures at Benevolate Golf Club</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Upcoming Matches</div>
+          <div class="stat-value purple">4</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Matches This Season</div>
+          <div class="stat-value green">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Wins</div>
+          <div class="stat-value amber">7</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Losses</div>
+          <div class="stat-value">3</div>
+        </div>
+      </div>
+
+      <div class="section-label">Match Schedule</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th>Opponent Club</th>
+              <th>Format</th>
+              <th>Date</th>
+              <th>Venue</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home Fixture</td>
+              <td>Riverside Golf Club</td>
+              <td>Foursomes</td>
+              <td>Aug 9, 2026</td>
+              <td>Pine Valley</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Away Fixture</td>
+              <td>Oakwood Golf Club</td>
+              <td>Singles</td>
+              <td>Aug 23, 2026</td>
+              <td>Oakwood</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Friendly Match</td>
+              <td>The Highlands</td>
+              <td>Fourball</td>
+              <td>Sep 6, 2026</td>
+              <td>The Highlands</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>League Match</td>
+              <td>Sunset Fairways</td>
+              <td>Singles</td>
+              <td>Sep 20, 2026</td>
+              <td>Pine Valley</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Home Fixture</td>
+              <td>Royal Links</td>
+              <td>Foursomes</td>
+              <td>Jul 12, 2026</td>
+              <td>Pine Valley</td>
+              <td><span class="badge badge-ok">Won 3-1</span></td>
+            </tr>
+            <tr>
+              <td>Away Fixture</td>
+              <td>Riverside Golf Club</td>
+              <td>Singles</td>
+              <td>Jun 28, 2026</td>
+              <td>Riverside</td>
+              <td><span class="badge badge-fail">Lost 2-3</span></td>
+            </tr>
+            <tr>
+              <td>League Match</td>
+              <td>The Highlands</td>
+              <td>Fourball</td>
+              <td>Jun 14, 2026</td>
+              <td>Pine Valley</td>
+              <td><span class="badge badge-ok">Won 4-0</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
