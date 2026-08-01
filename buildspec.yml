@@ -67,6 +67,9 @@ phases:
               "portMappings": [
                 { "containerPort": ${CONTAINER_PORT}, "protocol": "tcp" }
               ],
+              "environment": [
+                { "name": "ADMIN_API_URL", "value": "${ADMIN_API_URL}" }
+              ],
               "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {

@@ -1,3 +1,10 @@
+// Local dev convenience only — .env is excluded from the Docker build
+// (.dockerignore) on purpose. Deployed environments (dev/uat/prod ECS) get
+// ADMIN_API_URL from the task definition's environment block instead, see
+// golf-infra-terraform/main.tf and buildspec.yml.
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const express = require("express");
 const session = require("express-session");
 const path    = require("path");
@@ -194,14 +201,6 @@ app.get("/courses", requireLogin, (req, res) => {
 
 app.get("/scores", requireLogin, (req, res) => {
   res.render("scores", { user: req.session.user, page: "scores" });
-});
-
-app.get("/members", requireLogin, (req, res) => {
-  res.render("members", { user: req.session.user, page: "members" });
-});
-
-app.get("/tournaments", requireLogin, (req, res) => {
-  res.render("tournaments", { user: req.session.user, page: "tournaments" });
 });
 
 app.get("/release-test", requireLogin, (req, res) => {
