@@ -6,7 +6,7 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 const express = require("express");
-const session = require("express-session");
+const crypto  = require("crypto");
 const path    = require("path");
 const os      = require("os");
 
@@ -133,16 +133,60 @@ function parseCookies(req) {
   return out;
 }
 
+// ─── Stateless session (signed cookie, no server-side store) ───────────────
+// express-session's default MemoryStore lives inside a single Node process —
+// it is NOT shared between ECS tasks. That's what caused the "have to log in
+// twice" bug: a login on prod created a session only prod's process knew
+// about. The very next request already carries __env=beta, gets routed to a
+// *different* task (beta), which has no record of that session ID and
+// bounces back to /login — so the user re-enters credentials, this time
+// landing directly on beta (cookie already set), which succeeds. Signing the
+// session data into the cookie itself removes the server-side store
+// entirely, so ANY task — prod, beta, uat, dev — can verify it alone, with
+// no shared state required.
+const SESSION_COOKIE_NAME = "golf_session";
+const SESSION_SECRET = process.env.SESSION_SECRET || "golf-demo-secret-key";
+
+function signSession(data) {
+  const payload = Buffer.from(JSON.stringify(data)).toString("base64url");
+  const sig = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+  return `${payload}.${sig}`;
+}
+
+function verifySession(cookieValue) {
+  if (!cookieValue) return null;
+  const dot = cookieValue.lastIndexOf(".");
+  if (dot === -1) return null;
+  const payload = cookieValue.slice(0, dot);
+  const sig = cookieValue.slice(dot + 1);
+  const expected = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+  const sigBuf = Buffer.from(sig);
+  const expBuf = Buffer.from(expected);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return null;
+  try {
+    return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({
-  secret: "golf-demo-secret-key",
-  resave: false,
-  saveUninitialized: false
-}));
+app.use((req, res, next) => {
+  const cookies = parseCookies(req);
+  req.session = verifySession(cookies[SESSION_COOKIE_NAME]) || {};
+  // Call explicitly after mutating req.session (see /login) — unlike
+  // express-session, this does not auto-persist at end of response, since
+  // there's no store to write to; it just re-signs the cookie.
+  req.session.save = () => {
+    const { save, ...data } = req.session;
+    res.cookie(SESSION_COOKIE_NAME, signSession(data), { path: "/", httpOnly: true, sameSite: "lax" });
+  };
+  next();
+});
 
 // Auth middleware
 function requireLogin(req, res, next) {
@@ -181,6 +225,7 @@ app.post("/login", async (req, res) => {
       res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
     }
 
+    req.session.save();
     return res.redirect("/");
   }
   res.render("login", { error: "Invalid username or password" });
@@ -188,7 +233,8 @@ app.post("/login", async (req, res) => {
 
 app.get("/logout", (req, res) => {
   res.clearCookie(ENV_COOKIE_NAME, { path: "/" });
-  req.session.destroy(() => res.redirect("/login"));
+  res.clearCookie(SESSION_COOKIE_NAME, { path: "/" });
+  res.redirect("/login");
 });
 
 app.get("/", requireLogin, (req, res) => {
