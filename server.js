@@ -1,7 +1,7 @@
 // Local dev convenience only — .env is excluded from the Docker build
 // (.dockerignore) on purpose. Deployed environments (dev/uat/prod ECS) get
 // ADMIN_API_URL from the task definition's environment block instead, see
-// golf-infra-terraform/main.tf and buildspec.yml.
+// buildspec.yml.
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
@@ -9,6 +9,7 @@ const express = require("express");
 const session = require("express-session");
 const path    = require("path");
 const os      = require("os");
+const { syncBetaRouting, CONFIGURED: BETA_SYNC_CONFIGURED } = require("./betaSync");
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -203,6 +204,22 @@ app.get("/scores", requireLogin, (req, res) => {
   res.render("scores", { user: req.session.user, page: "scores" });
 });
 
+app.get("/members", requireLogin, (req, res) => {
+  res.render("members", { user: req.session.user, page: "members" });
+});
+
+app.get("/tournaments", requireLogin, (req, res) => {
+  res.render("tournaments", { user: req.session.user, page: "tournaments" });
+});
+
+app.get("/club-matches", requireLogin, (req, res) => {
+  res.render("club-matches", { user: req.session.user, page: "club-matches" });
+});
+
+app.get("/club-events", requireLogin, (req, res) => {
+  res.render("club-events", { user: req.session.user, page: "club-events" });
+});
+
 app.get("/release-test", requireLogin, (req, res) => {
   const cookies = parseCookies(req);
   const envCookie = cookies[ENV_COOKIE_NAME] || null;
@@ -223,6 +240,25 @@ app.get("/release-test", requireLogin, (req, res) => {
 // Health check for ALB / ECS
 app.get("/health", (req, res) => res.json({ status: "ok", version: process.env.BUILD_VERSION || "local" }));
 
+// Manual trigger for the beta-routing reconciler — call this from the end
+// of the deploy pipeline (scale up/down beta, promote, etc.) so routing
+// updates immediately instead of waiting for the next timer tick.
+app.post("/admin/sync-beta-routing", requireLogin, async (req, res) => {
+  const result = await syncBetaRouting();
+  res.json(result);
+});
+
 app.listen(PORT, () => {
   console.log(`Golf Demo App running on http://localhost:${PORT}`);
+
+  if (BETA_SYNC_CONFIGURED) {
+    // Reconcile once at boot (covers deploys/restarts)...
+    syncBetaRouting();
+    // ...then keep it self-correcting on a timer, so a beta task that
+    // gets stopped/started/promoted outside this app's own deploy flow
+    // (e.g. someone scales it manually) still converges within a minute.
+    setInterval(syncBetaRouting, 60 * 1000);
+  } else {
+    console.warn("[beta-sync] auto-sync disabled — see betaSync.js for required env vars");
+  }
 });

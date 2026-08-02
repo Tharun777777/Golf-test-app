@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Club Events — Benevolate Golf Club</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="shell">
+  <%- include('partials/sidebar', { page, user }) %>
+  <div class="main">
+    <%- include('partials/topbar', { title: 'Club Events' }) %>
+    <div class="content">
+
+      <div class="page-header">
+        <h1>Club Events</h1>
+        <p>Social gatherings, clinics, and member events at Benevolate Golf Club</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Upcoming Events</div>
+          <div class="stat-value purple">5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Events This Season</div>
+          <div class="stat-value green">18</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total RSVPs</div>
+          <div class="stat-value amber">96</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Members Attending</div>
+          <div class="stat-value">62</div>
+        </div>
+      </div>
+
+      <div class="section-label">Event Calendar</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>RSVPs</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Summer Social Mixer</td>
+              <td>Social</td>
+              <td>Aug 8, 2026</td>
+              <td>Clubhouse Terrace</td>
+              <td>34</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Junior Golf Clinic</td>
+              <td>Clinic</td>
+              <td>Aug 15, 2026</td>
+              <td>Pine Valley Range</td>
+              <td>21</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Ladies Night Dinner</td>
+              <td>Social</td>
+              <td>Aug 21, 2026</td>
+              <td>Clubhouse Ballroom</td>
+              <td>28</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Rules & Etiquette Workshop</td>
+              <td>Clinic</td>
+              <td>Sep 3, 2026</td>
+              <td>The Highlands</td>
+              <td>15</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Charity Golf Gala</td>
+              <td>Fundraiser</td>
+              <td>Sep 19, 2026</td>
+              <td>Royal Links</td>
+              <td>40</td>
+              <td><span class="badge badge-pending">Upcoming</span></td>
+            </tr>
+            <tr>
+              <td>Members' BBQ Night</td>
+              <td>Social</td>
+              <td>Jul 18, 2026</td>
+              <td>Clubhouse Terrace</td>
+              <td>52</td>
+              <td><span class="badge badge-ok">Completed</span></td>
+            </tr>
+            <tr>
+              <td>New Member Welcome Brunch</td>
+              <td>Social</td>
+              <td>Jun 25, 2026</td>
+              <td>Sunset Fairways</td>
+              <td>19</td>
+              <td><span class="badge badge-ok">Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
